@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Udostępnij lokalizację</title>
+<style>
+body{font-family:Arial,sans-serif;max-width:520px;margin:60px auto;padding:24px;text-align:center}
+button{font-size:18px;padding:14px 22px;border:0;border-radius:10px;cursor:pointer}
+#status{margin-top:20px;line-height:1.5}
+</style>
+</head>
+<body>
+<h2>Udostępnij swoją lokalizację</h2>
+<p>Jeśli chcesz, kliknij przycisk. Przeglądarka poprosi Cię o zgodę na udostępnienie aktualnej lokalizacji.</p>
+<button onclick="shareLocation()">Udostępnij lokalizację</button>
+<div id="status"></div>
+<script>
+function shareLocation(){
+ const s=document.getElementById('status');
+ if(!navigator.geolocation){
+   s.textContent='Ta przeglądarka nie obsługuje geolokalizacji.';
+   return;
+ }
+ s.textContent='Oczekiwanie na Twoją zgodę...';
+ navigator.geolocation.getCurrentPosition(
+   p=>{
+     const lat=p.coords.latitude.toFixed(6);
+     const lon=p.coords.longitude.toFixed(6);
+     const maps=`https://www.google.com/maps?q=${lat},${lon}`;
+     s.innerHTML=`Lokalizacja została pobrana za Twoją zgodą.<br><a href="${maps}" target="_blank">Otwórz lokalizację na mapie</a>`;
+     // Strona nie wysyła lokalizacji na żaden serwer.
+   },
+   e=>{
+     s.textContent = e.code===1 ? 'Nie udzielono zgody na lokalizację.' : 'Nie udało się pobrać lokalizacji.';
+   },
+   {enableHighAccuracy:true, timeout:15000}
+ );
+}
+</script>
+</body>
+</html>
