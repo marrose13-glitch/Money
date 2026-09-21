@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+                <!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
@@ -22,7 +22,6 @@
 
 const SUPABASE_URL = "https://zkabtpwxrkpecbzzsksh.supabase.co";
 
-// Wklej tutaj swój Publishable key:
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InprYWJ0cHd4cmtwZWNienpza3NoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NzUxNzgsImV4cCI6MjEwNTU1MTE3OH0.30EeR7a5XoyfxmpLvU4jPkqBKXzLEoK4OM9XZpp-7jk";
 
 async function shareLocation() {
@@ -37,6 +36,7 @@ async function shareLocation() {
     status.innerText = "Pobieranie lokalizacji...";
 
     navigator.geolocation.getCurrentPosition(
+
         async function(position) {
 
             const latitude = position.coords.latitude;
@@ -67,26 +67,33 @@ async function shareLocation() {
                 );
 
                 if (!response.ok) {
+
                     const errorText = await response.text();
-                    throw new Error(errorText);
+
+                    status.innerText =
+                        "BŁĄD SUPABASE: " + errorText;
+
+                    console.log(errorText);
+
+                    return;
                 }
 
-                status.innerHTML =
-                    "✅ Lokalizacja została udostępniona.";
+                status.innerText =
+                    "✅ Lokalizacja została zapisana.";
 
             } catch (error) {
 
                 console.error(error);
 
                 status.innerText =
-                    "Nie udało się zapisać lokalizacji.";
+                    "BŁĄD POŁĄCZENIA: " + error.message;
             }
         },
 
-        function() {
+        function(error) {
 
             status.innerText =
-                "Nie udzielono dostępu do lokalizacji.";
+                "Błąd lokalizacji: " + error.message;
 
         }
     );
