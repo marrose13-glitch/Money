@@ -5,56 +5,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Udostępnij lokalizację</title>
 </head>
+
 <body>
 
-    <h1>Udostępnij swoją lokalizację</h1>
+<h1>Udostępnij lokalizację</h1>
 
-    <p>
-        Kliknij przycisk poniżej, aby dobrowolnie udostępnić
-        swoją aktualną lokalizację.
-    </p>
+<p>Kliknij przycisk i dobrowolnie zezwól na udostępnienie lokalizacji.</p>
 
-    <button onclick="getLocation()">
-        Udostępnij lokalizację
-    </button>
+<button onclick="shareLocation()">
+    Udostępnij lokalizację
+</button>
 
-    <p id="status"></p>
+<p id="status"></p>
 
-    <script>
-        function getLocation() {
-            const status = document.getElementById("status");
+<script>
 
-            if (!navigator.geolocation) {
-                status.textContent =
-                    "Twoja przeglądarka nie obsługuje lokalizacji.";
-                return;
-            }
+const SUPABASE_URL = "https://zkabtpwxrkpecbzzsksh.supabase.co";
 
-            status.textContent =
-                "Oczekiwanie na zgodę na lokalizację...";
+// Wklej tutaj swój Publishable key:
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InprYWJ0cHd4cmtwZWNienpza3NoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NzUxNzgsImV4cCI6MjEwNTU1MTE3OH0.30EeR7a5XoyfxmpLvU4jPkqBKXzLEoK4OM9XZpp-7jk";
 
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    const latitude = position.coords.latitude;
-                    const longitude = position.coords.longitude;
+async function shareLocation() {
 
-                    status.innerHTML =
-                        "Lokalizacja została pobrana.<br><br>" +
-                        "Szerokość: " + latitude + "<br>" +
-                        "Długość: " + longitude + "<br><br>" +
-                        '<a href="https://www.google.com/maps?q=' +
-                        latitude + ',' + longitude +
-                        '" target="_blank">' +
-                        "Otwórz lokalizację w Google Maps" +
-                        "</a>";
-                },
-                function() {
-                    status.textContent =
-                        "Nie udzielono dostępu do lokalizacji.";
+    const status = document.getElementById("status");
+
+    if (!navigator.geolocation) {
+        status.innerText = "Ta przeglądarka nie obsługuje lokalizacji.";
+        return;
+    }
+
+    status.innerText = "Pobieranie lokalizacji...";
+
+    navigator.geolocation.getCurrentPosition(
+        async function(position) {
+
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            status.innerText = "Zapisywanie lokalizacji...";
+
+            try {
+
+                const response = await fetch(
+                    SUPABASE_URL + "/rest/v1/locations",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json",
+                            "apikey": SUPABASE_KEY,
+                            "Authorization": "Bearer " + SUPABASE_KEY,
+                            "Prefer": "return=minimal"
+                        },
+
+                        body: JSON.stringify({
+                            latitude: latitude,
+                            longitude: longitude,
+                            device_id: "device"
+                        })
+                    }
+                );
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText);
                 }
-            );
+
+                status.innerHTML =
+                    "✅ Lokalizacja została udostępniona.";
+
+            } catch (error) {
+
+                console.error(error);
+
+                status.innerText =
+                    "Nie udało się zapisać lokalizacji.";
+            }
+        },
+
+        function() {
+
+            status.innerText =
+                "Nie udzielono dostępu do lokalizacji.";
+
         }
-    </script>
+    );
+}
+
+</script>
 
 </body>
 </html>
