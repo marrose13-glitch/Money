@@ -1,1 +1,60 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Udostępnij lokalizację</title>
+</head>
+<body>
 
+    <h1>Udostępnij swoją lokalizację</h1>
+
+    <p>
+        Kliknij przycisk poniżej, aby dobrowolnie udostępnić
+        swoją aktualną lokalizację.
+    </p>
+
+    <button onclick="getLocation()">
+        Udostępnij lokalizację
+    </button>
+
+    <p id="status"></p>
+
+    <script>
+        function getLocation() {
+            const status = document.getElementById("status");
+
+            if (!navigator.geolocation) {
+                status.textContent =
+                    "Twoja przeglądarka nie obsługuje lokalizacji.";
+                return;
+            }
+
+            status.textContent =
+                "Oczekiwanie na zgodę na lokalizację...";
+
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    status.innerHTML =
+                        "Lokalizacja została pobrana.<br><br>" +
+                        "Szerokość: " + latitude + "<br>" +
+                        "Długość: " + longitude + "<br><br>" +
+                        '<a href="https://www.google.com/maps?q=' +
+                        latitude + ',' + longitude +
+                        '" target="_blank">' +
+                        "Otwórz lokalizację w Google Maps" +
+                        "</a>";
+                },
+                function() {
+                    status.textContent =
+                        "Nie udzielono dostępu do lokalizacji.";
+                }
+            );
+        }
+    </script>
+
+</body>
+</html>
